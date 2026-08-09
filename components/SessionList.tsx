@@ -12,7 +12,17 @@ export default function SessionList({ sessions }: { sessions: Session[] }) {
   }, []);
 
   if (!mounted) {
-    return null; // Prevents hydration mismatch before client takes over
+    // Skeleton loading state instead of blank
+    return (
+      <div className="flex flex-col gap-4">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="h-[140px] animate-pulse rounded-2xl border border-orange-100 bg-orange-50/30"
+          />
+        ))}
+      </div>
+    );
   }
 
   const upcoming = sessions
@@ -29,8 +39,10 @@ export default function SessionList({ sessions }: { sessions: Session[] }) {
 
   if (upcoming.length === 0) {
     return (
-      <div className="rounded-2xl border border-orange-100 bg-orange-50/50 p-10 text-center shadow-sm">
-        <p className="text-base text-gray-500">No upcoming sessions</p>
+      <div className="rounded-2xl border border-orange-100 bg-white p-10 text-center shadow-sm">
+        <p className="text-2xl mb-2">📚</p>
+        <p className="text-base font-medium text-gray-700">No upcoming sessions</p>
+        <p className="mt-1 text-sm text-gray-400">Check back later for new sessions.</p>
       </div>
     );
   }

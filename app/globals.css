@@ -1,1 +1,129 @@
 @import "tailwindcss";
+
+/* ─── Design tokens ─── */
+/* Warm tutoring portal palette: amber/orange warmth, soft cream backgrounds,
+   friendly rounded corners. Reads "reassuring parent portal", not "SaaS dashboard." */
+
+@layer base {
+  :root {
+    --color-cream: #FFFBF5;
+    --color-warm-50: #FFF7ED;
+    --color-warm-100: #FFEDD5;
+    --color-warm-500: #F97316;
+    --color-warm-600: #EA580C;
+    --color-warm-700: #C2410C;
+  }
+
+  /* Sensible body defaults */
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--color-cream);
+    color: #1f2937;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ─── Focus states ─── */
+/* Visible keyboard focus everywhere — warm orange ring, not browser default blue */
+@layer utilities {
+  *:focus-visible {
+    outline: 2px solid var(--color-warm-500);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* ─── Animations ─── */
+/* Modal + toast transitions — purposeful, not decorative */
+@keyframes modal-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modal-panel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes toast-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Named animation classes */
+.animate-modal-overlay {
+  animation: modal-overlay-in 200ms ease-out;
+}
+
+.animate-modal-panel {
+  animation: modal-panel-in 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-toast {
+  animation: toast-slide-up 300ms ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 150ms ease-out;
+}
+
+/* ─── Reduced motion ─── */
+/* Strip ALL animations for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .animate-modal-overlay,
+  .animate-modal-panel,
+  .animate-toast,
+  .animate-fade-in {
+    animation: none !important;
+  }
+
+  /* Also disable Tailwind's built-in spin */
+  .animate-spin {
+    animation: none !important;
+  }
+}
+
+/* ─── Scrollbar styling ─── */
+/* Subtle scrollbar for the slot grid on overflow */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 2px;
+}
+
+/* ─── Native date input polish ─── */
+/* Remove the default calendar icon on Webkit so the emoji icon shows through */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}

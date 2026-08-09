@@ -43,6 +43,14 @@ export default function RescheduleModal({ session, onClose, triggerRef, onSucces
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   // Simple Focus trap
   useEffect(() => {
     const handleTab = (e: KeyboardEvent) => {
@@ -118,39 +126,42 @@ export default function RescheduleModal({ session, onClose, triggerRef, onSucces
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="animate-modal-overlay fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
       <div 
         ref={modalRef}
         role="dialog" 
         aria-modal="true" 
         aria-labelledby="modal-title"
-        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+        className="animate-modal-panel w-full sm:max-w-md max-h-[95vh] sm:max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl bg-white p-5 sm:p-6 shadow-2xl scrollbar-thin"
       >
         <div className="mb-4 flex items-start justify-between">
-          <h2 id="modal-title" className="text-xl font-bold text-gray-900">
-            Reschedule Session
+          <h2 id="modal-title" className="text-lg sm:text-xl font-bold text-gray-900">
+            Choose a new time
           </h2>
           <button 
             type="button"
             onClick={onClose}
             aria-label="Close modal"
-            className="rounded-full p-2 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="rounded-full p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-orange-500 transition-colors"
           >
-            ✕
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
-        <p className="mb-6 text-sm text-gray-600">
-          Rescheduling: <strong className="font-semibold">{session.subject}</strong> with {session.teacherName}
+        <p className="mb-5 text-sm text-gray-500">
+          Rescheduling <strong className="font-semibold text-gray-700">{session.subject}</strong> with {session.teacherName}
         </p>
 
         {errorMsg && (
-          <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200 animate-in fade-in slide-in-from-top-1">
-            {errorMsg}
+          <div className="animate-fade-in mb-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <span className="mt-0.5 shrink-0">⚠️</span>
+            <p>{errorMsg}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <TimeSlotPicker
             currentSessionUTC={session.datetimeUTC}
             selectedUTC={newDatetimeUTC}
@@ -164,33 +175,37 @@ export default function RescheduleModal({ session, onClose, triggerRef, onSucces
             disabled={isSubmitting} 
           />
 
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1.5">
             <label htmlFor="note-input" className="text-sm font-medium text-gray-700">
-              Note (optional)
+              Note <span className="font-normal text-gray-400">(optional)</span>
             </label>
             <textarea
               id="note-input"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               disabled={isSubmitting}
-              className="resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:opacity-50"
-              rows={3}
+              placeholder="Any extra context for your tutor..."
+              className="resize-none rounded-xl border border-gray-200 bg-gray-50/50 px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-orange-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-400 disabled:opacity-50 transition-colors"
+              rows={2}
             />
           </div>
 
-          <div className="mt-2 flex justify-end gap-3">
+          {/* Divider */}
+          <div className="border-t border-gray-100" />
+
+          <div className="flex justify-between gap-3">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
+              className="rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-orange-500 disabled:opacity-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !reason || !newDatetimeUTC}
-              className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 min-w-[160px] flex items-center justify-center gap-2"
+              className="rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 hover:shadow-md focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:opacity-40 disabled:shadow-none disabled:hover:bg-orange-500 min-w-[180px] flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98]"
             >
               {isSubmitting ? (
                 <>
@@ -198,10 +213,10 @@ export default function RescheduleModal({ session, onClose, triggerRef, onSucces
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Submitting...
+                  Sending request…
                 </>
               ) : (
-                'Confirm Reschedule'
+                'Request reschedule'
               )}
             </button>
           </div>
