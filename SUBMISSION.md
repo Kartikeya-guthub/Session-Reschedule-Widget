@@ -66,7 +66,7 @@ Today, I would change how the AI streaming interacts with the collaborative code
 
 ## Part 3 — Session Reschedule Widget
 
-**Location:** [Part 3/Session Reschedule Widget/](https://github.com/Kartikeya-guthub/Session-Reschedule-Widget/tree/main/Part%203/Session%20Reschedule%20Widget)
+**Location:** [Part3/Session-Reschedule-Widget/](https://github.com/Kartikeya-guthub/Session-Reschedule-Widget/tree/main/Part3/Session-Reschedule-Widget)
 
 Implemented:
 
