@@ -4,14 +4,16 @@ import { Session, RescheduleReason } from '@/lib/types';
 import { useEffect, useRef, useState } from 'react';
 import ReasonSelect from './ReasonSelect';
 import TimeSlotPicker from './TimeSlotPicker';
+import { requestReschedule } from '@/lib/firebase/functions';
 
 interface RescheduleModalProps {
   session: Session;
   onClose: () => void;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
+  onSuccess: () => void;
 }
 
-export default function RescheduleModal({ session, onClose, triggerRef }: RescheduleModalProps) {
+export default function RescheduleModal({ session, onClose, triggerRef, onSuccess }: RescheduleModalProps) {
   // Generated once per modal instance lifetime
   const [requestId] = useState(() => crypto.randomUUID());
   
@@ -19,6 +21,7 @@ export default function RescheduleModal({ session, onClose, triggerRef }: Resche
   const [newDatetimeUTC, setNewDatetimeUTC] = useState<string | null>(null);
   const [note, setNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
   const mountedRef = useRef(true);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -84,14 +87,33 @@ export default function RescheduleModal({ session, onClose, triggerRef }: Resche
     if (!reason || !newDatetimeUTC) return;
     
     setIsSubmitting(true);
+    setErrorMsg(null);
     
-    // Simulate mock submission delay for the shell
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    
-    // Guard against unmounted state updates
-    if (mountedRef.current) {
-      setIsSubmitting(false);
-      onClose();
+    try {
+      const res = await requestReschedule({
+        sessionId: session.id,
+        currentDatetimeUTC: session.datetimeUTC,
+        newDatetimeUTC,
+        reason,
+        requestId,
+        note: note.trim() || undefined,
+      });
+
+      if (mountedRef.current) {
+        if (res.success) {
+          onSuccess();
+        } else {
+          setErrorMsg(res.error || 'An unexpected error occurred.');
+        }
+      }
+    } catch (err) {
+      if (mountedRef.current) {
+        setErrorMsg('Network error. Please try again.');
+      }
+    } finally {
+      if (mountedRef.current) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -121,6 +143,12 @@ export default function RescheduleModal({ session, onClose, triggerRef }: Resche
         <p className="mb-6 text-sm text-gray-600">
           Rescheduling: <strong className="font-semibold">{session.subject}</strong> with {session.teacherName}
         </p>
+
+        {errorMsg && (
+          <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200 animate-in fade-in slide-in-from-top-1">
+            {errorMsg}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <TimeSlotPicker
@@ -162,9 +190,19 @@ export default function RescheduleModal({ session, onClose, triggerRef }: Resche
             <button
               type="submit"
               disabled={isSubmitting || !reason || !newDatetimeUTC}
-              className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
+              className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 min-w-[160px] flex items-center justify-center gap-2"
             >
-              {isSubmitting ? 'Submitting...' : 'Confirm Reschedule'}
+              {isSubmitting ? (
+                <>
+                  <svg className="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Submitting...
+                </>
+              ) : (
+                'Confirm Reschedule'
+              )}
             </button>
           </div>
         </form>
