@@ -3,6 +3,7 @@
 import { Session, RescheduleReason } from '@/lib/types';
 import { useEffect, useRef, useState } from 'react';
 import ReasonSelect from './ReasonSelect';
+import TimeSlotPicker from './TimeSlotPicker';
 
 interface RescheduleModalProps {
   session: Session;
@@ -15,6 +16,7 @@ export default function RescheduleModal({ session, onClose, triggerRef }: Resche
   const [requestId] = useState(() => crypto.randomUUID());
   
   const [reason, setReason] = useState<RescheduleReason | ''>('');
+  const [newDatetimeUTC, setNewDatetimeUTC] = useState<string | null>(null);
   const [note, setNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -79,7 +81,7 @@ export default function RescheduleModal({ session, onClose, triggerRef }: Resche
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reason) return;
+    if (!reason || !newDatetimeUTC) return;
     
     setIsSubmitting(true);
     
@@ -121,10 +123,12 @@ export default function RescheduleModal({ session, onClose, triggerRef }: Resche
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          {/* Phase 4 Slot Picker Placeholder */}
-          <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
-            [Slot Picker Placeholder - Phase 4]
-          </div>
+          <TimeSlotPicker
+            currentSessionUTC={session.datetimeUTC}
+            selectedUTC={newDatetimeUTC}
+            onSelectUTC={setNewDatetimeUTC}
+            disabled={isSubmitting}
+          />
 
           <ReasonSelect 
             value={reason} 
@@ -157,7 +161,7 @@ export default function RescheduleModal({ session, onClose, triggerRef }: Resche
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || !reason}
+              disabled={isSubmitting || !reason || !newDatetimeUTC}
               className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
             >
               {isSubmitting ? 'Submitting...' : 'Confirm Reschedule'}
