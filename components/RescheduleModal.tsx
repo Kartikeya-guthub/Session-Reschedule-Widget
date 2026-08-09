@@ -28,6 +28,7 @@ export default function RescheduleModal({ session, onClose, triggerRef, onSucces
 
   // Return focus to trigger on unmount
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
       triggerRef.current?.focus();
@@ -98,6 +99,8 @@ export default function RescheduleModal({ session, onClose, triggerRef, onSucces
     setErrorMsg(null);
     
     try {
+      console.log('[handleSubmit] calling requestReschedule with:', { sessionId: session.id, reason, newDatetimeUTC });
+      console.log('[handleSubmit] requestReschedule is:', typeof requestReschedule);
       const res = await requestReschedule({
         sessionId: session.id,
         currentDatetimeUTC: session.datetimeUTC,

@@ -1,7 +1,9 @@
-import { RescheduleRequestPayload, RescheduleResponse, Session } from '@/lib/types';
-import { idempotencyStore } from './idempotencyStore';
-import { isWithinLeadTime } from '@/lib/time';
-import { mockSessions } from '@/lib/mockData';
+import { RescheduleRequestPayload, RescheduleResponse, Session } from '../../lib/types';
+import { isWithinLeadTime } from '../../lib/time';
+import { mockSessions } from '../../lib/mockData';
+
+// Module-level idempotency store (plain Map — fine for a mock)
+const idempotencyStore = new Map<string, RescheduleResponse>();
 
 // We need a helper to find sessions since we use mockData.
 function findSessionById(id: string): Session | undefined {
@@ -77,7 +79,7 @@ export function requestRescheduleHandler(
   // 9. All checks passed — apply it, cache under requestId, return.
   const updatedSession: Session = { ...session, status: 'pending_reschedule' };
   
-  // Actually mutate the mock data array so the UI reflects the change on refresh (optional but good for a mock)
+  // Actually mutate the mock data array so the UI reflects the change on refresh
   const index = mockSessions.findIndex(s => s.id === session.id);
   if (index !== -1) {
     mockSessions[index] = updatedSession;
