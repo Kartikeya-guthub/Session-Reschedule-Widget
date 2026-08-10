@@ -21,31 +21,36 @@ export default function TimeSlotPicker({ currentSessionUTC, selectedUTC, onSelec
   const [selectedDateStr, setSelectedDateStr] = useState<string>('');
   const [timeZone, setTimeZone] = useState<string>('');
   const [visibleReason, setVisibleReason] = useState<string | null>(null);
-  const [formattedDate, setFormattedDate] = useState<string>('');
 
   useEffect(() => {
+    let mounted = true;
     const today = new Date();
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const dd = String(today.getDate()).padStart(2, '0');
-    setSelectedDateStr(`${yyyy}-${mm}-${dd}`);
     
-    setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    // Defer update to avoid "synchronous setState in effect" linter warnings
+    setTimeout(() => {
+      if (mounted) {
+        setSelectedDateStr(`${yyyy}-${mm}-${dd}`);
+        setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+      }
+    }, 0);
+
+    return () => { mounted = false; };
   }, []);
 
-  // Format date for styled display
-  useEffect(() => {
-    if (!selectedDateStr) return;
+  // Format date for styled display - derived directly from selectedDateStr
+  const formattedDate = useMemo(() => {
+    if (!selectedDateStr) return '';
     const [y, m, d] = selectedDateStr.split('-').map(Number);
     const date = new Date(y, m - 1, d);
-    setFormattedDate(
-      new Intl.DateTimeFormat(undefined, {
-        weekday: 'long',
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }).format(date)
-    );
+    return new Intl.DateTimeFormat(undefined, {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(date);
   }, [selectedDateStr]);
 
   const slots = useMemo(() => {

@@ -1,6 +1,10 @@
 import SessionList from '@/components/SessionList';
 import { mockSessions } from '@/lib/mockData';
 
+// Force dynamic rendering so mockSessions (which uses new Date()) is
+// re-evaluated on every request, not cached at build time.
+export const dynamic = 'force-dynamic';
+
 export default function Home() {
   return (
     <main className="min-h-screen px-4 py-8 sm:py-12">

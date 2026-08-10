@@ -42,3 +42,6 @@ next-env.d.ts
 
 # secret commands log
 .commands-log.md
+
+# presentation script
+.presentation-script.md
