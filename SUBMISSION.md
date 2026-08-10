@@ -3,9 +3,11 @@
 ## Part 1 — GitHub Portfolio Walkthrough
 
 ### GitHub Profile
+
 https://github.com/Kartikeya-guthub
 
 ### Repository 1 — Event-Driven Order & Payment System
+
 **Link:** https://github.com/Kartikeya-guthub/Event-Driven-Order-Payment-Backend
 
 **What problem does it solve?**  
@@ -13,6 +15,7 @@ In modern microservices architecture, ensuring data consistency across distribut
 
 **What did I specifically build?**  
 I engineered the complete backend infrastructure for this system from scratch:
+
 - **Core API & Architecture:** Built a robust Node.js/Express.js backend utilizing an event-driven flow.
 - **Transactional Outbox Implementation:** Engineered atomic operations where order creations and domain events are saved to a PostgreSQL database within a single transaction.
 - **Event Publisher System:** Developed a background worker (`src/publisher`) that reliably polls the database and pushes pending events to an Apache Kafka cluster.
@@ -23,6 +26,7 @@ I engineered the complete backend infrastructure for this system from scratch:
 I would replace the database polling mechanism in the Outbox Publisher with Change Data Capture (CDC) using a tool like Debezium. In the current implementation, a background worker continually polls the PostgreSQL database for unpublished events. While effective, polling inherently introduces latency and places unnecessary continuous load on the database. By utilizing CDC to read directly from the database's write-ahead log (WAL) and stream changes to Kafka, the architecture would become far more efficient, real-time, and scalable under heavy load.
 
 ### Repository 2 — CollabHub
+
 **Link:** https://github.com/Kartikeya-guthub/CollabHub
 
 **What problem does it solve?**  
@@ -30,6 +34,7 @@ CollabHub provides a real-time, unified workspace that combines a collaborative 
 
 **What did I specifically build?**  
 I architected and developed a unified real-time collaborative workspace. Specifically, I:
+
 - Built the backend infrastructure utilizing a unified Postgres/JWT authentication layer for user identity and secure room management.
 - Implemented a unified real-time synchronization engine using **Yjs**. Instead of running separate sync servers, I tied both the **Monaco Code Editor** (via `y-monaco`) and the **Excalidraw Whiteboard** (via `y-excalidraw`) into a single shared `Y.Doc`.
 - Scaled the real-time infrastructure horizontally using Node.js, Socket.IO, and **Redis Pub/Sub**. Updates to the Yjs document are broadcast via a `yjs-rehydrate` Redis channel, ensuring perfectly synced CRDT state across multiple distributed server instances.
@@ -37,7 +42,7 @@ I architected and developed a unified real-time collaborative workspace. Specifi
 - Developed a multi-modal AI integration that goes beyond chat. It includes a smart code template generator that streams directly into the editor, and a Diagram Generator (powered by Gemini/NVIDIA Nemotron) that parses natural language and programmatically injects architectural shapes and connective arrows directly into the shared Excalidraw whiteboard.
 
 **What would I design differently today?**  
-Today, I would change how the AI streaming interacts with the collaborative code editor. Currently, when the AI auto-generates a code template, it temporarily unlocks the editor and injects the streaming chunks natively using Monaco's `executeEdits` API. While the `y-monaco` binding eventually picks this up, bypassing the Yjs data structure creates a subtle race condition: if a remote user types on the same line while the AI is streaming, the edits can conflict or interleave poorly. To fix this, I would stream the AI tokens *directly* into the `Y.Text` CRDT type via `ytext.insert()`. By treating the AI as just another "remote user" interacting natively with the CRDT, Yjs would perfectly handle all conflict resolution mathematically without locking the editor.
+Today, I would change how the AI streaming interacts with the collaborative code editor. Currently, when the AI auto-generates a code template, it temporarily unlocks the editor and injects the streaming chunks natively using Monaco's `executeEdits` API. While the `y-monaco` binding eventually picks this up, bypassing the Yjs data structure creates a subtle race condition: if a remote user types on the same line while the AI is streaming, the edits can conflict or interleave poorly. To fix this, I would stream the AI tokens _directly_ into the `Y.Text` CRDT type via `ytext.insert()`. By treating the AI as just another "remote user" interacting natively with the CRDT, Yjs would perfectly handle all conflict resolution mathematically without locking the editor.
 
 ---
 
@@ -65,6 +70,8 @@ Today, I would change how the AI streaming interacts with the collaborative code
 ---
 
 ## Part 3 — Session Reschedule Widget
+
+live link https://session-reschedule-widget.vercel.app/
 
 **Location:** [Part3/Session-Reschedule-Widget/](https://github.com/Kartikeya-guthub/Session-Reschedule-Widget/tree/main/Part3/Session-Reschedule-Widget)
 
@@ -96,7 +103,7 @@ The UI intelligently converts that UTC value into the parent's local timezone fo
 
 ## Part 4 — Explain-It-Yourself Video
 
-**Video:** [PASTE YOUR VIDEO LINK HERE]
+**Video:** https://www.youtube.com/watch?v=T7cls97Zgi0
 
 The video demonstrates:
 
